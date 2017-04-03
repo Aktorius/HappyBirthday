@@ -1,15 +1,24 @@
 package aktorius.com.android.happybirthday;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final int READ_CONTACTS_PERMISSION_REQUEST = 1;
+    private static final String DEBUG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +35,37 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        getPermissionToReadUserContacts();
+    }
+
+    private void getPermissionToReadUserContacts(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED){
+                requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, READ_CONTACTS_PERMISSION_REQUEST);
+                return;
+            }else{
+                loadContacts();
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode){
+            case READ_CONTACTS_PERMISSION_REQUEST: {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    loadContacts();
+                } else {
+                    Log.d(DEBUG, "The permission has been deied");
+                }
+                break;
+            }
+        }
+    }
+
+    private void loadContacts(){
+        Log.d(DEBUG, "We have the permissions to load the contacts");
     }
 
     @Override
